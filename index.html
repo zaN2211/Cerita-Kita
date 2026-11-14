@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Album Kenangan Fauzan & Heni ❤️</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Playfair+Display:ital,wght@0,600;0,800;1,400&family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- File CSS Murni (Semua tampilan diatur di file ini) -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Library Ikon (Lucide) & Efek Confetti -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+</head>
+
+<body>
+
+    <!-- Kilatan Cahaya Putih saat Tombol Kamera Dijepret -->
+    <div id="camera-flash-overlay" class="camera-flash-overlay"></div>
+
+    <!-- ===================================================================
+         1. HALAMAN PEMBUKA: KAMERA ANALOG VINTAGE
+    ==================================================================== -->
+    <div id="camera-screen" class="camera-screen">
+        <div class="camera-wrapper">
+            <div class="camera-header">
+                <span class="camera-badge">Nostalgic Camera Edition</span>
+                <h1 class="camera-title">Cetak Kenangan Kita 📸</h1>
+                <p class="camera-subtitle">Tekan tombol kamera di bawah untuk mulai melihat cerita perjalanan kita</p>
+            </div>
+
+            <!-- Badan Kamera Vintage -->
+            <div class="camera-body">
+                <div class="camera-lens-outer">
+                    <div class="camera-lens-inner">
+                        <div class="camera-lens-glare"></div>
+                    </div>
+                    <div class="camera-indicator-dot"></div>
+                </div>
+
+                <button onclick="takePhoto()" class="shutter-button">
+                    <i data-lucide="camera" class="icon-md"></i>
+                    <span>Jepret & Cetak Foto</span>
+                </button>
+            </div>
+
+            <p class="camera-note">Musik & Suara Otomatis Aktif 🔊</p>
+        </div>
+    </div>
+
+
+    <!-- ===================================================================
+         2. HALAMAN UTAMA (TAMPILAN KHUSUS LAYAR HP)
+    ==================================================================== -->
+    <main id="main-content" class="main-container hidden">
+
+        <!-- BAGIAN HERO & PENGHITUNG HARI (DAYS COUNTER) -->
+        <section class="hero-section">
+            <div class="hero-header">
+                <span class="anniversary-badge">
+                    <i data-lucide="heart" class="icon-sm icon-fill-pink"></i>
+                    <span>Happy Anniversary</span>
+                </span>
+
+                <h1 class="hero-title">
+                    Album Kenangan
+                    <span class="hero-names">Fauzan & Heni ❤️</span>
+                </h1>
+            </div>
+
+            <!-- Kotak Days Counter (Bisa Diklik untuk Peresmian 1 Tahun!) -->
+            <div id="days-counter-card" onclick="openInaugurationModal()" class="days-counter-card">
+                <p class="counter-label">Kita Sudah Bersama Selama</p>
+
+                <div class="counter-grid">
+                    <div class="counter-box">
+                        <span id="days-counter" class="counter-number text-pink">00</span>
+                        <span class="counter-unit">Hari</span>
+                    </div>
+                    <div class="counter-box">
+                        <span id="hours-counter" class="counter-number">00</span>
+                        <span class="counter-unit">Jam</span>
+                    </div>
+                    <div class="counter-box">
+                        <span id="minutes-counter" class="counter-number">00</span>
+                        <span class="counter-unit">Menit</span>
+                    </div>
+                    <div class="counter-box">
+                        <span id="seconds-counter" class="counter-number text-pink">00</span>
+                        <span class="counter-unit">Detik</span>
+                    </div>
+                </div>
+
+                <p class="counter-date-note">Terhitung sejak 19 November 2025 ✨</p>
+
+                <!-- Tombol Petunjuk Peresmian 1 Tahun -->
+                <div class="inauguration-trigger-pill">
+                    <i data-lucide="sparkles" class="icon-xs"></i>
+                    <span>Ketuk untuk Peresmian 1 Tahun 🎉</span>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- BAGIAN PILIHAN MENU INTERAKTIF (3 OPSI) -->
+        <section class="menu-section">
+            <div class="section-heading">
+                <h2 class="section-title">Pilih Momen Spesial</h2>
+                <p class="section-subtitle">Pilih salah satu menu di bawah ini untuk melihat kenangan kita</p>
+            </div>
+
+            <div class="menu-list">
+
+                <!-- 📌 OPSI 1: FOTO KITA (STORIES 1 TAHUN) -->
+                <div onclick="openStoryModal()" class="menu-card">
+                    <div class="menu-card-header">
+                        <span class="menu-tag">
+                            <i data-lucide="images" class="icon-sm"></i> • Story Kenangan
+                        </span>
+                        <span class="menu-pill pink">Banyak Foto 📸</span>
+                    </div>
+
+                    <!-- Wadah Slider Otomatis Polaroid -->
+                    <div class="polaroid-frame">
+                        <div class="polaroid-tape"></div>
+                        <div class="polaroid-image-box">
+                            <img src="assets/images/foto1.jpg" alt="Foto Kita" class="polaroid-img"
+                                onerror="this.src='https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=600'">
+                            <div class="polaroid-overlay-hint">
+                                <i data-lucide="sparkles" class="icon-xs text-gold"></i>
+                                <span>Ketuk untuk masuk ke Stories</span>
+                            </div>
+                        </div>
+                        <div class="polaroid-caption">Foto kita</div>
+                    </div>
+
+                    <div class="menu-card-footer">
+                        <p class="handwriting-gold">Geser fotonya ke kiri atau kanan ♥</p>
+                        <p class="menu-desc">Kumpulan foto dan cerita perjalanan kita sampai 1 tahun jadian.</p>
+                    </div>
+                </div>
+
+
+                <!-- 📌 OPSI 2: VIDEO KITA (SHORT VIDEO + POTONG PITA) -->
+                <div id="video-card-section" class="menu-card">
+                    <div class="menu-card-header">
+                        <span class="menu-tag">
+                            <i data-lucide="video" class="icon-sm"></i> Opsi 2 • Video Kita
+                        </span>
+                        <span class="menu-pill gold">Short Video 🎬</span>
+                    </div>
+
+                    <div class="polaroid-frame">
+                        <div class="polaroid-tape"></div>
+
+                        <!-- Lapisan Pita sebelum Video Diputar -->
+                        <div id="video-ribbon-overlay" class="ribbon-overlay">
+                            <div class="ribbon-content">
+                                <div class="ribbon-icon-circle">
+                                    <i data-lucide="scissors" class="icon-md bounce-anim"></i>
+                                </div>
+                                <h4 class="ribbon-title">Gunting Pita Kenangan 🎀</h4>
+                                <p class="ribbon-desc">Ketuk tombol di bawah untuk memotong pita & memutar video short
+                                    kita</p>
+                                <button onclick="cutRibbonAndPlayVideo()" class="ribbon-cut-btn">
+                                    <i data-lucide="play" class="icon-sm"></i>
+                                    <span>Buka & Putar Video</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Pemutar Video Short (Format Vertikal HP 9:16) -->
+                        <div class="video-box">
+                            <video id="anniversary-short-video" class="short-video-player" loop playsinline
+                                preload="metadata"
+                                poster="https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?w=600">
+                                <source src="assets/videos/short1.mp4" type="video/mp4">
+                                Browser kamu tidak mendukung pemutar video.
+                            </video>
+                        </div>
+
+                        <div class="polaroid-caption">Putar kenangannya</div>
+                    </div>
+
+                    <div class="menu-card-footer">
+                        <p class="handwriting-pink">Video spesial perjalanan kita ♥</p>
+                    </div>
+                </div>
+
+
+                <!-- 📌 OPSI 3: SURAT RAHASIA (LAYAR PENUH + EFEK MENGETIK) -->
+                <div onclick="openLetterModal()" class="menu-card">
+                    <div class="menu-card-header">
+                        <span class="menu-tag">
+                            <i data-lucide="mail-open" class="icon-sm"></i> Opsi 3 • Surat Rahasia
+                        </span>
+                        <span class="menu-pill red">Full Screen 💌</span>
+                    </div>
+
+                    <div class="letter-preview-card">
+                        <div class="wax-seal-circle">
+                            <i data-lucide="heart" class="icon-md icon-fill-gold"></i>
+                        </div>
+                        <h3 class="letter-preview-title">Surat Spesial Untuk Heni</h3>
+                        <p class="letter-preview-desc">Ketuk di sini untuk membaca surat rahasia dalam tampilan layar
+                            penuh</p>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+
+        <!-- BAGIAN BAWAH: TOMBOL SAYANG KAMU -->
+        <section class="love-section">
+            <div class="love-counter-wrapper">
+                <button id="love-btn" class="love-tactile-btn" onclick="handleLoveClick(event)">
+                    Sayang kamu
+                </button>
+                <p id="love-counter-text" class="love-counter-sub">Tekan sesukamu</p>
+            </div>
+        </section>
+
+        <!-- FOOTER -->
+        <footer class="site-footer">
+            <p class="footer-names">Fauzan & Heni</p>
+            <p class="footer-tagline">Forever & Always • Anniversary Special Edition</p>
+        </footer>
+
+    </main>
+
+
+    <!-- ===================================================================
+         3. MODAL PERESMIAN 1 TAHUN (MUNCUL SAAT DAYS COUNTER DIKLIK)
+    ==================================================================== -->
+    <div id="inauguration-modal" class="modal-overlay inauguration-bg">
+        <div class="inauguration-card">
+            <button onclick="closeInaugurationModal()" class="modal-close-btn light">
+                <i data-lucide="x" class="icon-md"></i>
+            </button>
+
+            <div class="inauguration-crown">
+                <i data-lucide="award" class="icon-lg text-gold"></i>
+            </div>
+
+            <span class="inauguration-badge">Official Milestone • 1st Anniversary</span>
+            <h2 class="inauguration-title">Peresmian 1 Tahun Bersama 🎉</h2>
+
+            <div class="inauguration-divider"></div>
+
+            <p class="inauguration-text">
+                Dengan penuh rasa syukur dan bahagia, hari ini kita meresmikan perjalanan <strong>1 Tahun</strong> kisah
+                cinta <strong>Fauzan & Heni</strong>!
+                Terima kasih sudah bertahan, saling mengerti, dan tumbuh bersama melewati 365 hari yang luar biasa.
+            </p>
+
+            <div class="inauguration-stamp">
+                <span>SAH • 1 TAHUN PENUH CINTA ❤️</span>
+            </div>
+
+            <div class="inauguration-actions">
+                <button onclick="launchInaugurationFireworks()" class="firework-btn">
+                    <i data-lucide="sparkles" class="icon-sm"></i>
+                    <span>Rayakan Lagi 🎆</span>
+                </button>
+                <button onclick="closeInaugurationModal()" class="continue-btn">
+                    Lanjut Lihat Kenangan
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ===================================================================
+         4. MODAL FULLSCREEN: STORIES FOTO KITA (OPSI 1)
+    ==================================================================== -->
+    <div id="story-modal" class="modal-overlay story-bg">
+        <div class="story-top-bar">
+            <div class="story-top-title">
+                <i data-lucide="images" class="icon-sm text-pink"></i>
+                <span>Stories Foto Kita</span>
+            </div>
+            <button onclick="closeStoryModal()" class="modal-close-btn">
+                <i data-lucide="x" class="icon-sm"></i>
+            </button>
+        </div>
+
+        <!-- Bar Indikator Jumlah Story -->
+        <div id="story-progress-container" class="story-progress-bar-wrap"></div>
+
+        <!-- Area Geser Foto Story -->
+        <div id="story-touch-area" class="story-stage">
+            <div id="story-carousel-track" class="story-carousel-track"></div>
+
+            <button onclick="prevStory()" class="story-nav-btn left">
+                <i data-lucide="chevron-left" class="icon-md"></i>
+            </button>
+            <button onclick="nextStory()" class="story-nav-btn right">
+                <i data-lucide="chevron-right" class="icon-md"></i>
+            </button>
+        </div>
+
+        <div class="story-bottom-bar">
+            <div class="story-reaction-bar">
+                <span class="reaction-hint">Kirim reaksi:</span>
+                <button onclick="sendStoryReaction('❤️')" class="reaction-btn">❤️</button>
+                <button onclick="sendStoryReaction('🥺')" class="reaction-btn">🥺</button>
+                <button onclick="sendStoryReaction('😂')" class="reaction-btn">😂</button>
+                <button onclick="sendStoryReaction('🔥')" class="reaction-btn">🔥</button>
+            </div>
+            <p id="story-current-index" class="story-counter-label">Story 1 dari 6</p>
+        </div>
+    </div>
+
+
+    <!-- ===================================================================
+         5. MODAL FULLSCREEN: SURAT RAHASIA (OPSI 3)
+    ==================================================================== -->
+    <div id="letter-modal" class="modal-overlay letter-bg">
+        <button onclick="closeLetterModal()" class="modal-close-btn fixed-top-right">
+            <i data-lucide="x" class="icon-md"></i>
+        </button>
+
+        <div class="letter-container">
+            <div class="letter-header">
+                <span class="letter-subtitle">Letter for Heni</span>
+                <h2 class="letter-title">Surat Rahasia ❤️</h2>
+            </div>
+
+            <div class="letter-paper">
+                <p id="full-typing-text" class="letter-body-text"></p>
+                <div class="letter-signature">
+                    <span>Fauzan</span>
+                </div>
+            </div>
+
+            <div class="letter-footer-action">
+                <button onclick="closeLetterModal()" class="letter-close-button">
+                    Tutup Surat
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================================================================
+         6. MODAL FULLSCREEN: GUDANG KENANGAN BERDUA (SCRAPBOOK WALL)
+    ==================================================================== -->
+    <div id="warehouse-modal" class="modal-overlay warehouse-bg">
+        <!-- Partikel Ornamen Melayang di Latar Belakang -->
+        <div class="warehouse-floating-bg" aria-hidden="true">
+            <span style="left: 10%; animation-delay: 0s;">❤️</span>
+            <span style="left: 28%; animation-delay: 2.5s;">✨</span>
+            <span style="left: 52%; animation-delay: 1.2s;">🛵</span>
+            <span style="left: 74%; animation-delay: 3.8s;">🍜</span>
+            <span style="left: 88%; animation-delay: 1.8s;">💕</span>
+        </div>
+
+        <!-- Top Navigation Bar -->
+        <div class="warehouse-top-bar">
+            <button onclick="closeWarehouseModal()" class="warehouse-back-btn">
+                <i data-lucide="arrow-left" class="icon-sm"></i>
+                <span>Kembali</span>
+            </button>
+
+            <button onclick="pickRandomWarehouseMemory()" class="warehouse-shuffle-btn">
+                <i data-lucide="shuffle" class="icon-xs"></i>
+                <span>Acak Foto 🎲</span>
+            </button>
+        </div>
+
+        <!-- Area Konten Scrollable -->
+        <div class="warehouse-scroll-area">
+            <!-- Header Judul Mading dengan Selotip -->
+            <div class="warehouse-header">
+                <div class="warehouse-title-board">
+                    <span class="board-tape left"></span>
+                    <span class="board-tape right"></span>
+                    <h2 class="warehouse-main-title">Gudang Kenangan Berdua ❤️</h2>
+                    <span class="warehouse-couple-tag">Fauzan & Heni</span>
+                </div>
+                <p class="warehouse-subtitle">Ketuk foto untuk zoom & lihat cerita singkatnya 🔍✨</p>
+            </div>
+
+            <!-- Bar Filter Kategori -->
+            <div class="warehouse-filter-bar" id="warehouse-filter-bar">
+                <button class="filter-pill active" onclick="filterWarehouse('all', this)">Semua 📸</button>
+                <button class="filter-pill" onclick="filterWarehouse('motor', this)">Naik Motor 🛵</button>
+                <button class="filter-pill" onclick="filterWarehouse('makan', this)">Makan-makan 🍜</button>
+                <button class="filter-pill" onclick="filterWarehouse('fotbar', this)">Fotbar 😍</button>
+                <button class="filter-pill" onclick="filterWarehouse('random', this)">Random 💫</button>
+            </div>
+
+            <p id="warehouse-count-info" class="warehouse-count-info">Menampilkan 6 kenangan berdua</p>
+
+            <!-- Grid Dinding Polaroid -->
+            <div id="warehouse-grid" class="warehouse-grid">
+                <!-- Kartu Polaroid dicetak otomatis oleh script.js -->
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ===================================================================
+         7. MODAL ZOOM FOTO (LIGHTBOX INTERAKTIF GUDANG KENANGAN)
+    ==================================================================== -->
+    <div id="warehouse-zoom-modal" class="modal-overlay zoom-lightbox-bg" onclick="closeWarehouseZoomOnBackdrop(event)">
+        <div class="zoom-polaroid-card" id="zoom-polaroid-card">
+            <button onclick="closeWarehouseZoom()" class="modal-close-btn light"
+                style="background: rgba(0,0,0,0.45); z-index: 30;">
+                <i data-lucide="x" class="icon-sm"></i>
+            </button>
+
+            <div id="zoom-pin-ornament" class="mini-washi-tape gold"></div>
+
+            <div class="zoom-carousel-viewport" id="zoom-carousel-viewport">
+                <!-- Indikator jumlah foto di pojok kiri atas (muncul jika > 1 foto) -->
+                <span id="zoom-photo-counter" class="zoom-photo-counter hidden">1 / 3</span>
+
+                <!-- Jalur Slide Foto dalam 1 Lokasi -->
+                <div id="zoom-photo-track" class="zoom-photo-track">
+                    <!-- Slide foto dicetak otomatis oleh script.js -->
+                </div>
+
+                <!-- Tombol panah halus di pinggir foto (untuk tap selain swipe jari) -->
+                <button id="zoom-sub-prev" onclick="slideZoomPhoto(-1)" class="zoom-photo-arrow left hidden"
+                    aria-label="Foto Sebelumnya">
+                    <i data-lucide="chevron-left" class="icon-xs"></i>
+                </button>
+                <button id="zoom-sub-next" onclick="slideZoomPhoto(1)" class="zoom-photo-arrow right hidden"
+                    aria-label="Foto Berikutnya">
+                    <i data-lucide="chevron-right" class="icon-xs"></i>
+                </button>
+
+                <!-- Titik indikator slide di bawah foto -->
+                <div id="zoom-photo-dots" class="zoom-photo-dots"></div>
+            </div>
+
+            <div class="zoom-details">
+                <div class="zoom-meta-row">
+                    <span id="zoom-category-badge" class="zoom-category-badge">Naik Motor 🛵</span>
+                    <span id="zoom-date-text" class="zoom-date-text">Momen Berdua</span>
+                </div>
+                <h3 id="zoom-caption-title" class="zoom-caption-title">Keliling kota!</h3>
+                <p id="zoom-story-note" class="zoom-story-note">Catatan singkat momen berdua di sini.</p>
+
+                <div class="zoom-bottom-controls">
+                    <button onclick="navigateZoom(-1)" class="zoom-nav-circle" aria-label="Sebelumnya">
+                        <i data-lucide="chevron-left" class="icon-md"></i>
+                    </button>
+
+                    <button onclick="likeZoomedPhoto()" class="zoom-love-btn">
+                        <span>❤️ Suka Momen Ini</span>
+                    </button>
+
+                    <button onclick="navigateZoom(1)" class="zoom-nav-circle" aria-label="Berikutnya">
+                        <i data-lucide="chevron-right" class="icon-md"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================================================================
+         8. FLOATING VINYL MUSIC CONTROLLER (PEMUTAR MUSIK PLAYLIST)
+    ==================================================================== -->
+    <!-- Laci Daftar Lagu (Muncul saat tombol list musik diklik) -->
+    <div id="playlist-drawer" class="playlist-drawer">
+        <div class="playlist-header">
+            <span class="playlist-header-title">🎵 Daftar Lagu Kita</span>
+            <button onclick="closePlaylistDrawer()" class="playlist-close-btn" aria-label="Tutup Daftar Lagu">
+                <i data-lucide="x" class="icon-xs"></i>
+            </button>
+        </div>
+        <div id="playlist-items-container" class="playlist-items-container">
+            <!-- Daftar lagu dicetak otomatis oleh script.js -->
+        </div>
+    </div>
+    <div id="music-player-dock" class="music-player-dock">
+        <!-- Piringan Hitam (Ketuk saat mode mini untuk membuka kembali) -->
+        <div id="vinyl-disc" class="vinyl-disc" onclick="expandMusicPlayer()" title="Buka Pemutar Musik">
+            <div class="vinyl-label">
+                <i data-lucide="music" class="icon-xs"></i>
+            </div>
+        </div>
+
+        <!-- Info Judul Lagu & Penyanyi -->
+        <div class="music-info">
+            <span class="music-badge">Playlist Kita 🎵</span>
+            <p id="music-title" class="music-title">Memuat lagu...</p>
+            <p id="music-artist" class="music-artist">Fauzan & Heni</p>
+        </div>
+
+        <!-- Tombol Kontrol Lagu -->
+        <div class="music-controls">
+            <button onclick="prevTrack()" class="music-ctrl-btn" aria-label="Lagu Sebelumnya">
+                <i data-lucide="skip-back" class="icon-sm"></i>
+            </button>
+
+            <button onclick="toggleAudio()" class="music-ctrl-btn play-main" aria-label="Putar atau Jeda">
+                <i id="icon-music-play" data-lucide="play" class="icon-sm"></i>
+                <i id="icon-music-pause" data-lucide="pause" class="icon-sm hidden"></i>
+            </button>
+
+            <button onclick="nextTrack()" class="music-ctrl-btn" aria-label="Lagu Berikutnya">
+                <i data-lucide="skip-forward" class="icon-sm"></i>
+            </button>
+
+            <button onclick="togglePlaylistDrawer()" class="music-ctrl-btn" aria-label="Daftar Lagu" title="Pilih Lagu">
+                <i data-lucide="list-music" class="icon-sm"></i>
+            </button>
+
+            <button onclick="minimizeMusicPlayer()" class="music-ctrl-btn minimize-btn" aria-label="Kecilkan Pemutar">
+                <i data-lucide="chevron-down" class="icon-sm"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Elemen Audio Playlist -->
+    <audio id="bg-music" preload="auto"></audio>
+
+    <audio id="camera-shutter-sound" preload="auto">
+        <source src="/assets/sound/shutter.mp3" type="audio/mp3">
+    </audio>
+
+    <!-- Logika JavaScript -->
+    <script src="script.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+
+</html>
