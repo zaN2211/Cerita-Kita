@@ -1,50 +1,31 @@
 // ==========================================================================
 // SCRIPT.JS - LOGIKA INTERAKTIF ALBUM KENANGAN FAUZAN & HENI
 // ==========================================================================
-// ==========================================================================
-// MODE EDIT (Ubah ke false jika sudah selesai & siap dikirim ke Heni!)
-// ==========================================================================
-const DEV_MODE = true;
 
-document.addEventListener("DOMContentLoaded", () => {
-    if (DEV_MODE) {
-        const cameraScreen = document.getElementById("camera-screen");
-        const mainContent = document.getElementById("main-content");
-
-        if (cameraScreen) cameraScreen.classList.add("hidden");
-        if (mainContent) {
-            mainContent.classList.remove("hidden");
-            mainContent.classList.add("visible");
-        }
-
-        // Otomatis stay di menu Gudang Kenangan Berdua setiap kali save
-        //openWarehouseModal();
-
-        // Hapus tanda "//" di bawah ini kalau nanti mau balik edit Stories:
-        // openStoryModal();
-    }
-});
 // 1. TANGGAL JADIAN (19 November 2025)
 const START_DATE = new Date("2025-11-19T00:00:00");
 
-// 2. DATA STORIES / FOTO KITA (Bisa kamu tambah foto & cerita sesukamu)
-// 2. DATA STORIES / FOTO KITA (6 Variasi Interaktif di Dalam Album)
+// Kode tanggal jadian yang diterima (mendukung format DDMMYY maupun DDMMYYYY)
+const VALID_PASSCODES = ["191125", "19112025"];
+let isCameraUnlocked = false;
+
+// 2. DATA STORIES / FOTO KITA (8 Slide Interaktif di Dalam Album)
 const storiesData = [
     {
         type: "normal",
         image: "assets/images/foto1.jpg",
         fallback: "https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=600",
         title: "Awal Cerita Kita",
-        tag: "",
+        tag: "Chapter 01",
         caption: "Lucu ya kalau diinget, dulu kita sering banget ketemu tapi hampir nggak pernah ngobrol. Sama-sama lagi jalan di cerita masing-masing, padahal diam-diam punya rasa yang sama."
     },
     {
         type: "flip",
         image: "assets/images/foto2.jpg",
         fallback: "assets/images/foto2.1.jpg",
-        customHeight: "330px", // <-- Atur tinggi manual khusus foto ini
-        title: "Intraksi Pertama",
-        tag: "",
+        customHeight: "330px",
+        title: "Interaksi Pertama",
+        tag: "Chapter 02",
         caption: "Sampai akhirnya aku iseng ngasih kode lewat catatan IG, dan ternyata kamu ngeh. Dari hal sesimpel itu, entah kenapa muncul rasa yakin kalau kali ini aku beneran bisa dapetin kamu.",
         backImage: "assets/images/foto2.1.jpg",
         backFallback: "https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?w=600",
@@ -54,23 +35,25 @@ const storiesData = [
         type: "normal",
         image: "assets/images/foto3.jpg",
         fallback: "https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?w=600",
-        title: "Momen tak terduga",
-        tag: "",
-        caption: "Siapa sangka tugas kelompok bikin buket justru jadi jembatan buat kita makin deket. Di sela-sela bikin buket, ngobrol sama kamu terasa seseru itu sampae sekelas pun ikut jadi saksi dan nge-cie-ciein kita hihihiii."
+        title: "Momen Tak Terduga",
+        tag: "Chapter 03",
+        caption: "Siapa sangka tugas kelompok bikin buket justru jadi jembatan buat kita makin deket. Di sela-sela bikin buket, ngobrol sama kamu terasa seseru itu sampe sekelas pun ikut jadi saksi dan nge-cie-ciein kita hihihiii."
     },
     {
         type: "normal",
         image: "assets/images/foto4.jpg",
-        title: "Moment aku nembak kamu",
-        tag: "",
-        caption: "Dengan modal nekad dan perasaan yang campur aduk, akhirnya aku ungkapin semuanya ke kamu lewat IG. Sempet dihantui rasa takut ditolak, tapi jawaban 'iya' dari kamu hari itu langsung bikin duniaku rasanya ringan banget, kayak mau terbang hihihii.",
+        fallback: "https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=600",
+        title: "Momen Aku Nembak Kamu",
+        tag: "Chapter 04",
+        caption: "Dengan modal nekad dan perasaan yang campur aduk, akhirnya aku ungkapin semuanya ke kamu lewat IG. Sempet dihantui rasa takut ditolak, tapi jawaban 'iya' dari kamu hari itu langsung bikin duniaku rasanya ringan banget, kayak mau terbang hihihii."
     },
     {
         type: "mystery",
         image: "assets/images/foto5.jpg",
+        fallback: "https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?w=600",
         title: "Fotbar Pertama",
-        tag: "",
-        caption: "Satu frame pertama kita, pake seragam Paskibra terakhir. Di tengah ramenya yang cie ciein hihihiii, salting banget asli.",
+        tag: "Chapter 05",
+        caption: "Satu frame pertama kita, pake seragam Paskibra terakhir. Di tengah ramenya yang cie ciein hihihiii, salting banget asli."
     },
     {
         type: "quiz",
@@ -82,7 +65,7 @@ const storiesData = [
             "Dua-duanya bener banget 😂"
         ],
         correctIndex: 2,
-        replyText: "Bener banget! Hal random bareng kamu emang selalu jadi obat capek paling ampuh ❤️"
+        replyText: "Bener banget! Hal random bareng kamu emang selalu jadi obat capek paling ampuh ♥"
     },
     {
         type: "meter",
@@ -90,77 +73,162 @@ const storiesData = [
         question: "Selama 1 tahun ini, seberapa besar rasa sayang kamu ke aku?",
         lowText: "Eits masa segitu doang? Geser lagi ke kanan! 😜",
         midText: "Lumayan, tapi kayaknya masih kurang penuh nih 💕",
-        highText: "Nah gitu dong! Sayangku ke kamu juga 1000% ❤️✨"
+        highText: "Nah gitu dong! Sayangku ke kamu juga 1000% ♥✨"
     },
     {
         type: "finale",
-        image: "assets/images/foto8.jpg", // Ganti dengan foto berdua terbaru kalian
-        tag: "365 HARI BERSAMA • 1ST ANNIVERSARY ❤️",
+        image: "assets/images/foto8.jpg",
+        fallback: "https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=600",
+        tag: "365 HARI BERSAMA • 1ST ANNIVERSARY ♥",
         title: "Cerita Awalnya Sampai Sini Dulu...",
         caption: "Dari yang tadinya cuma saling lirik dan salting sendirian, nggak kerasa udah 1 tahun aja kita bareng. Cerita awal kita emang selesai di slide ini, tapi masih banyak banget momen random kita berdua yang tersimpan di gudang kenangan!"
     }
 ];
 
 // 3. TEKS SURAT RAHASIA FULLSCREEN
-const FULL_LOVE_LETTER = `Untuk Heni Tersayang ❤️
+const FULL_LOVE_LETTER = `Untuk bebeeeee tersayang tercinta ❤️
 
-Terima kasih ya sudah hadir dan mewarnai setiap hari-hari aku. Menjalani hari bersama kamu adalah salah satu hal terbaik dan terindah yang pernah terjadi dalam hidup aku.
+Sejak awal kita mulai ini semua, sebenernya aku masih takut buat mulai hubungan lagi. Tapi pas aku liat kamu, entah kenapa aku ngerasa kamu bakal bawa perubahan buat hidup aku. Aku yang awalnya malu-malu, bahkan buat hal sederhana kaya ngomong aja dulu terbata-bata, perlahan ilang gitu aja karna sering ngobrol sama kamu. Aku yang sekarang jadi jauh lebih percaya diri dan ga takut buat coba hal baru, itu semua karna siapa? Karna kamu, bebee. Sampe 1 tahun ini banyak banget hal yang berubah dari yang awalnya kurang baik jadi jauh lebih baik, kaya komunikasi kita. Dulu komunikasi kita bisa dibilang jelek, tapi kamu mau usaha bareng-bareng buat perbaikin itu setiap harinya. Jujur, hal paling ga nyangka itu ternyata ada cewe kaya kamu, yang baik, pengertian, cantik. Bisa bareng kamu sampe detik ini tuh rasanya masih kaya mimpi.
 
-Terima kasih atas segala kebaikan, kesabaran, dan senyuman kamu yang selalu bikin aku merasa beruntung banget bisa punya kamu di samping aku.
+Aku suka banget setiap kali bebee cerita dan ngadu soal dunia yang ga selalu berpihak sama kamu, entah itu dari hal kecil kaya tangan berdarah atau jatuh. Rasanya seneng banget karna kamu mau libatin aku di setiap cerita kamu. Cara kamu ngetreat aku pun rasanya hangat banget, kaya lagi ngejagain anak sendiri, jadi aku ngerasa nyaman banget tiap sama kamu. Kamu ga pernah risih pas aku lagi rewel atau susah dimengerti, dan itu yang bikin aku ngerasa beruntung banget punya kamu.
 
-Apapun yang terjadi ke depannya, aku bakal selalu berusaha ada buat kamu, mendukung kamu, dan menjaga hubungan kita.
+Dari sekian banyak momen, yang paling nempel di ingetan aku itu pas perpisahan MA. Di situ rasanya pecah banget, sedih, terharu, campur aduk pokonya. Momen pas pertama kalinya aku ngasih fresh flowers buat kamu, dan ternyata itu juga pertama kalinya kamu dapet fresh flowers dari seseorang. Dan yang paling bikin aku ga nyangka, ternyata kamu juga nyiapin bucket bunga wisuda buat aku. Padahal aku kira aku ga layak dapet itu, tapi kamu buktiin lewat kata-kata kamu yang selalu aku inget, "cowo juga harus dirayakan". Itu bener-bener momen yang ga bakal aku lupain.
 
-Happy Anniversary, Sayang!
-Semoga cerita kita selalu penuh bahagia.
+Bebee, makasih yah buat sabarnya selama ini ngadepin aku. Makasih udah sabar ngejalanin LDR sama aku, dan ga pernah nuntut atau memberatkan aku sama sekali. Makasih juga udah mau nemenin perjalanan aku yang masih panjang ini, semoga di perjalanan panjang ini kita bisa terus sama-sama sampe ke tujuan kita. Karna kamu juga aku bisa ngerti banyak hal dan jadi pribadi yang kaya sekarang. Makasih udah selalu support aku di setiap kegiatan yang aku lakuin, dan makasih sebanyak-banyaknya karna kamu udah mau bertahan sama aku sampe detik ini.
 
-Dengan cinta,
-Fauzan ✨`;
+Semoga ke depannya kita bisa jadi pasangan yang lebih baik lagi dari hari ini. Mungkin emang ga ada pasangan yang sempurna, tapi kita bisa usaha buat nyempurnain hubungan ini bareng-bareng. Semoga kita selalu saling inget satu sama lain di tengah kesibukan kita yang berbeda. Oh iya, semoga ke depannya gengsinya rada dikurangi yah hihihii. Semoga kita bisa terus bersama yah, bebee!
+
+Happy 1st Anniversary, bebee! ❤️`;
 
 
 // ==========================================================================
-// 1. KAMERA SHUTTER & TRANSISI KE HALAMAN UTAMA
+// HELPER: KUNCI SCROLL BODY SAAT MODAL TERBUKA
 // ==========================================================================
-function takePhoto() {
-    const flashOverlay = document.getElementById("camera-flash-overlay");
-    const shutterSound = document.getElementById("camera-shutter-sound");
-    const cameraScreen = document.getElementById("camera-screen");
-    const mainContent = document.getElementById("main-content");
-    const bgMusic = document.getElementById("bg-music");
-
-    // 1. Putar suara jepretan kamera
-    if (shutterSound) {
-        shutterSound.volume = 0.5;
-        shutterSound.play().catch(e => console.log("Sound info:", e));
-    }
-
-    // 2. Langsung putar musik tepat saat tombol diklik (anti-blokir autoplay HP)
-    if (bgMusic) {
-        if (!bgMusic.src && typeof loadTrack === "function") {
-            loadTrack(currentTrackIndex, true);
-        } else {
-            bgMusic.play()
-                .then(() => {
-                    if (typeof updateMusicUI === "function") updateMusicUI(true);
-                })
-                .catch(e => console.log("Music play info:", e));
-        }
-    }
-
-    // 3. Jalankan efek kilatan flash putih & transisi layar
-    flashOverlay.classList.add("camera-flash-active");
-
-    setTimeout(() => {
-        cameraScreen.classList.add("fade-out");
-        setTimeout(() => {
-            cameraScreen.classList.add("hidden");
-            mainContent.classList.remove("hidden");
-            setTimeout(() => {
-                mainContent.classList.add("visible");
-            }, 50);
-        }, 550);
-    }, 200);
+function syncBodyModalLock() {
+    const anyModalOpen = document.querySelector(".modal-overlay.active") !== null;
+    document.body.classList.toggle("modal-open", anyModalOpen);
 }
 
+
+// ==========================================================================
+// 1. VERIFIKASI PASSWORD TANGGAL JADIAN & KAMERA SHUTTER
+// ==========================================================================
+function verifyAnniversaryPasscode() {
+    const inputEl = document.getElementById("anniversary-passcode");
+    const boxEl = document.getElementById("camera-passcode-box");
+    const feedbackEl = document.getElementById("passcode-feedback");
+
+    if (!inputEl) return;
+
+    // Bersihkan karakter selain angka (agar input seperti 19-11-25 atau 19/11/2025 tetap valid)
+    const cleaned = inputEl.value.replace(/\D/g, "");
+
+    if (VALID_PASSCODES.includes(cleaned)) {
+        unlockCameraAccess(true);
+    } else {
+        if (feedbackEl) {
+            feedbackEl.innerText = cleaned.length === 0
+                ? "Isi dulu kode tanggal jadian kita ya sayang 😜"
+                : "Ups, kode salah! Coba ingat lagi tanggal jadian kita (19 Nov 2025) 🔒";
+            feedbackEl.classList.add("error");
+        }
+        if (boxEl) {
+            boxEl.classList.remove("shake");
+            void boxEl.offsetWidth;
+            boxEl.classList.add("shake");
+        }
+        if (navigator.vibrate) {
+            navigator.vibrate([40, 40, 40]);
+        }
+        inputEl.focus();
+    }
+}
+
+function unlockCameraAccess(withCelebration = false) {
+    isCameraUnlocked = true;
+    try {
+        sessionStorage.setItem("fh_camera_unlocked", "1");
+    } catch (e) {}
+
+    const passcodeBox = document.getElementById("camera-passcode-box");
+    const shutterArea = document.getElementById("camera-shutter-area");
+    const lensOuter = document.getElementById("camera-lens-outer");
+    const indicatorDot = document.getElementById("camera-indicator-dot");
+    const lockIcon = document.getElementById("camera-lock-icon");
+
+    if (passcodeBox) passcodeBox.classList.add("hidden");
+    if (shutterArea) shutterArea.classList.remove("hidden");
+    if (lensOuter) lensOuter.classList.add("unlocked");
+    if (indicatorDot) indicatorDot.classList.add("ready");
+
+    if (lockIcon) {
+        lockIcon.setAttribute("data-lucide", "unlock");
+        if (window.lucide) lucide.createIcons();
+    }
+
+    if (withCelebration && typeof confetti === "function") {
+        confetti({
+            particleCount: 28,
+            spread: 55,
+            origin: { y: 0.6 },
+            colors: ['#9E3F35', '#C49A45', '#FAF6EE']
+        });
+    }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    try {
+        if (sessionStorage.getItem("fh_camera_unlocked") === "1") {
+            unlockCameraAccess(false);
+        }
+    } catch (e) {}
+});
+
+let isShutterFiring = false;
+
+function takePhoto() {
+    if (isShutterFiring) return;
+    isShutterFiring = true;
+
+    const cameraBody = document.querySelector('.camera-body');
+    const flashOverlay = document.getElementById('camera-flash-overlay');
+    const ejectedCard = document.getElementById('ejected-polaroid-card');
+    const cameraScreen = document.getElementById('camera-screen');
+    const mainContent = document.getElementById('main-content');
+    const shutterSound = document.getElementById('camera-shutter-sound');
+
+    // 1. Putar suara jepret & mulai musik latar (biarkan fungsi musik aslimu tetap di sini)
+    if (shutterSound) {
+        shutterSound.currentTime = 0;
+        shutterSound.play().catch(() => {});
+    }
+    if (typeof playMusic === 'function') {
+        playMusic();
+    } else {
+        const bgMusic = document.getElementById('bg-music');
+        if (bgMusic) bgMusic.play().catch(() => {});
+    }
+
+    // 2. Picu recoil kamera, kilatan flash, dan keluarnya foto Polaroid
+    if (cameraBody) cameraBody.classList.add('shutter-firing');
+    if (flashOverlay) flashOverlay.classList.add('camera-flash-active');
+    if (ejectedCard) ejectedCard.classList.add('ejecting');
+
+    // Update angka film counter di kamera (01 -> 02)
+    const filmCounter = document.querySelector('.camera-film-counter');
+    if (filmCounter) filmCounter.textContent = '02';
+
+    // 3. Setelah foto selesai tercetak & gambarnya muncul, masuk ke halaman utama
+    setTimeout(() => {
+        if (cameraScreen) cameraScreen.classList.add('fade-out');
+        if (mainContent) mainContent.classList.remove('hidden');
+
+        setTimeout(() => {
+            if (cameraScreen) cameraScreen.classList.add('hidden');
+            if (mainContent) mainContent.classList.add('visible');
+        }, 600);
+    }, 1550);
+}
 
 // ==========================================================================
 // 2. LOGIKA PENGHITUNG HARI (DAYS COUNTER)
@@ -198,24 +266,25 @@ updateDaysCounter();
 function openInaugurationModal() {
     const modal = document.getElementById("inauguration-modal");
     modal.classList.add("active");
+    syncBodyModalLock();
     launchInaugurationFireworks();
 }
 
 function closeInaugurationModal() {
     const modal = document.getElementById("inauguration-modal");
     modal.classList.remove("active");
+    syncBodyModalLock();
 }
 
 function launchInaugurationFireworks() {
     if (typeof confetti !== 'function') return;
 
-    // Ledakan confetti emas & pink dari kiri dan kanan layar
     confetti({
         particleCount: 55,
         angle: 60,
         spread: 65,
         origin: { x: 0, y: 0.7 },
-        colors: ['#EBCB8B', '#E2738E', '#FFFFFF']
+        colors: ['#9E3F35', '#C49A45', '#8C5835', '#FAF6EE']
     });
 
     confetti({
@@ -223,19 +292,20 @@ function launchInaugurationFireworks() {
         angle: 120,
         spread: 65,
         origin: { x: 1, y: 0.7 },
-        colors: ['#EBCB8B', '#E2738E', '#FFFFFF']
+        colors: ['#9E3F35', '#C49A45', '#8C5835', '#FAF6EE']
     });
 }
 
 
 // ==========================================================================
-// 4. KONTROL STORIES FOTO KITA (6 VARIASI INTERAKTIF + SWIPE JARI)
+// 4. KONTROL STORIES FOTO KITA (8 SLIDE INTERAKTIF + SWIPE JARI)
 // ==========================================================================
 let currentStoryIndex = 0;
 
 function openStoryModal() {
     const modal = document.getElementById("story-modal");
     modal.classList.add("active");
+    syncBodyModalLock();
     renderStoryCarousel();
     updateStoryCarousel();
 }
@@ -243,6 +313,7 @@ function openStoryModal() {
 function closeStoryModal() {
     const modal = document.getElementById("story-modal");
     modal.classList.remove("active");
+    syncBodyModalLock();
 }
 
 function renderStoryCarousel() {
@@ -253,7 +324,6 @@ function renderStoryCarousel() {
     progressContainer.innerHTML = "";
 
     storiesData.forEach((story, idx) => {
-        // Bar indikator di bagian atas
         const progBar = document.createElement("div");
         progBar.className = idx === 0 ? "story-progress-item active" : "story-progress-item";
         progBar.id = `story-prog-${idx}`;
@@ -262,7 +332,6 @@ function renderStoryCarousel() {
         const slide = document.createElement("div");
         slide.className = "story-slide-item";
 
-        // 1. VARIASI FLIP (BOLAK-BALIK 3D)
         // 1. VARIASI FLIP (BOLAK-BALIK 3D + FOTO & TEKS DI BELAKANG)
         if (story.type === "flip") {
             const backPhotoHtml = story.backImage ? `
@@ -295,7 +364,7 @@ function renderStoryCarousel() {
                                 ${backPhotoHtml}
                             </div>
                             <p class="flip-back-note">"${story.secretNote || story.caption}"</p>
-                            <div class="flip-back-footer"></div>
+                            <div class="flip-back-footer">Fauzan ♥ Heni</div>
                         </div>
                     </div>
                 </div>
@@ -307,7 +376,7 @@ function renderStoryCarousel() {
                 <div class="polaroid-frame story-slide-card">
                     <div class="polaroid-tape"></div>
                     <div class="story-slide-img-box" style="position:relative;">
-                        <img id="mystery-img-${idx}" src="${story.image}" style="max-height: ${story.customHeight || '330px'};" alt="${story.title}" class="polaroid-img" onerror="this.src='${story.fallback}'">
+                        <img id="mystery-img-${idx}" src="${story.image}" style="max-height: ${story.customHeight || '330px'};" alt="${story.title}" class="polaroid-img mystery-img" onerror="this.src='${story.fallback}'">
                         <div id="mystery-overlay-${idx}" class="mystery-overlay" onclick="unlockMysteryPhoto(${idx})">
                             <span style="font-size:28px;">🔒</span>
                             <span id="mystery-btn-${idx}" class="mystery-lock-pill">Ketuk 3x untuk buka foto</span>
@@ -413,7 +482,6 @@ function updateStoryCarousel() {
 
     document.getElementById("story-current-index").innerText = `Story ${currentStoryIndex + 1} dari ${storiesData.length}`;
 
-    // Otomatis tembakkan confetti jika mencapai slide finale
     if (storiesData[currentStoryIndex] && storiesData[currentStoryIndex].type === "finale") {
         launchInaugurationFireworks();
     }
@@ -487,7 +555,7 @@ function updateLoveMeter(storyIdx, val) {
     const feedbackEl = document.getElementById(`meter-feedback-${storyIdx}`);
     const num = parseInt(val, 10);
 
-    valEl.innerText = num === 100 ? "100% ❤️" : `${num}%`;
+    valEl.innerText = num === 100 ? "100% ♥" : `${num}%`;
 
     if (num < 40) {
         feedbackEl.innerText = story.lowText;
@@ -504,13 +572,14 @@ function sendStoryReaction(emoji) {
     for (let i = 0; i < 4; i++) {
         setTimeout(() => {
             const el = document.createElement("div");
-            el.className = "floating-heart";
+            el.className = "floating-tap-heart";
             el.innerText = emoji;
             el.style.left = `${20 + Math.random() * 60}%`;
-            el.style.bottom = "80px";
+            el.style.top = `${window.innerHeight - 100}px`;
+            el.style.setProperty("--drift-x", `${Math.floor(Math.random() * 50) - 25}px`);
             document.body.appendChild(el);
-            setTimeout(() => el.remove(), 1200);
-        }, i * 120);
+            setTimeout(() => el.remove(), 950);
+        }, i * 110);
     }
 }
 
@@ -523,7 +592,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const touchArea = document.getElementById("story-touch-area");
     if (touchArea) {
         touchArea.addEventListener("touchstart", (e) => {
-            // Cegah pindah slide saat jari menggeser slider Love Meter
             isTouchingSlider = e.target.tagName === "INPUT";
             touchStartX = e.changedTouches[0].screenX;
         }, { passive: true });
@@ -547,40 +615,160 @@ function handleSwipeGesture() {
 
 
 // ==========================================================================
-// 5. KONTROL VIDEO KITA (OPSI 2 - POTONG PITA)
+// 5. KONTROL VIDEO KITA (OPSI 2 - ANIMASI PITA SATIN & GUNTING)
 // ==========================================================================
+let isRibbonCutting = false;
+
 function cutRibbonAndPlayVideo() {
+    if (isRibbonCutting) return;
+    isRibbonCutting = true;
+
     const ribbonOverlay = document.getElementById("video-ribbon-overlay");
     const video = document.getElementById("anniversary-short-video");
+    const scissorTool = document.getElementById("scissor-cutting-tool");
+    const ribbonWrap = document.getElementById("satin-ribbon-wrap");
+    const contentBox = document.getElementById("ribbon-content-box");
+    const triggerBtn = document.getElementById("ribbon-trigger-btn");
 
-    ribbonOverlay.classList.add("cut");
+    if (!ribbonOverlay || !video) return;
+
+    if (triggerBtn) triggerBtn.disabled = true;
+
+    if (contentBox) contentBox.classList.add("cutting");
+    if (scissorTool) scissorTool.classList.add("snapping");
+
+    if (typeof confetti === "function") {
+        const rect = ribbonOverlay.getBoundingClientRect();
+        const originX = (rect.left + rect.width / 2) / window.innerWidth;
+        const originY = (rect.top + rect.height / 2) / window.innerHeight;
+        confetti({
+            particleCount: 32,
+            spread: 60,
+            origin: { x: originX, y: originY },
+            colors: ['#9E3F35', '#C49A45', '#8C5835', '#FAF6EE']
+        });
+    }
 
     setTimeout(() => {
+        if (ribbonWrap) ribbonWrap.classList.add("ribbon-severed");
+
+        setTimeout(() => {
+            ribbonOverlay.classList.add("cut");
+
+            const bgMusic = document.getElementById("bg-music");
+            if (bgMusic && !bgMusic.paused) {
+                bgMusic.pause();
+                if (typeof updateMusicUI === "function") updateMusicUI(false);
+            }
+
+            video.controls = true;
+            video.play().catch(err => console.log("Video play info:", err));
+
+            setTimeout(() => {
+                ribbonOverlay.style.display = "none";
+                ribbonOverlay.style.pointerEvents = "none";
+            }, 500);
+        }, 450);
+    }, 350);
+}
+
+function toggleVideoPlayback(event) {
+    const video = document.getElementById("anniversary-short-video");
+    if (!video) return;
+
+    const ribbonOverlay = document.getElementById("video-ribbon-overlay");
+    if (ribbonOverlay && !ribbonOverlay.classList.contains("cut")) return;
+
+    if (event && event.offsetY > video.clientHeight - 48) return;
+
+    if (video.paused) {
+        video.play().then(() => showVideoTapFeedback("play")).catch(e => console.log(e));
         const bgMusic = document.getElementById("bg-music");
-    if (bgMusic && !bgMusic.paused) { bgMusic.pause(); updateMusicUI(false); }
-        video.play().catch(err => console.log("Video play info:", err));
-    }, 300);
+        if (bgMusic && !bgMusic.paused) {
+            bgMusic.pause();
+            if (typeof updateMusicUI === "function") updateMusicUI(false);
+        }
+    } else {
+        video.pause();
+        showVideoTapFeedback("pause");
+    }
+}
+
+function showVideoTapFeedback(action) {
+    const indicator = document.getElementById("video-tap-indicator");
+    if (!indicator) return;
+
+    indicator.innerHTML = action === "play"
+        ? `<i data-lucide="play" class="icon-lg"></i>`
+        : `<i data-lucide="pause" class="icon-lg"></i>`;
+
+    if (window.lucide) lucide.createIcons();
+
+    indicator.classList.remove("flash");
+    void indicator.offsetWidth;
+    indicator.classList.add("flash");
 }
 
 
 // ==========================================================================
-// 6. KONTROL SURAT FULLSCREEN (OPSI 3 - EFEK MENGETIK)
+// 6. KONTROL AMPLOP FISIK REALISTIK & MODAL SURAT RAHASIA
 // ==========================================================================
+let isEnvelopeOpening = false;
+
+function handleEnvelopeClick(event) {
+    if (isEnvelopeOpening) return;
+    isEnvelopeOpening = true;
+
+    const envelope = document.getElementById("physical-envelope");
+    if (envelope) {
+        envelope.classList.add("opening");
+    }
+
+    if (typeof confetti === "function") {
+        //confetti({
+          //  particleCount: 22,
+            //spread: 55,
+            //origin: { y: 0.68 },
+            //colors: ['#9E3F35', '#C49A45', '#8C5835', '#FAF6EE']
+        //});
+    }
+
+    setTimeout(() => {
+        openLetterModal();
+
+        setTimeout(() => {
+            if (envelope) envelope.classList.remove("opening");
+            isEnvelopeOpening = false;
+        }, 700);
+    }, 550);
+}
+
 let letterTypingIndex = 0;
 let isLetterTyped = false;
+let letterTypingTimeout = null;
 
 function openLetterModal() {
     const modal = document.getElementById("letter-modal");
+    if (!modal) return;
     modal.classList.add("active");
+    syncBodyModalLock();
+
+    if (window.lucide) {
+        lucide.createIcons();
+    }
 
     if (!isLetterTyped) {
         startFullLetterTyping();
+    } else {
+        const skipBtn = document.getElementById("letter-skip-btn");
+        if (skipBtn) skipBtn.classList.add("hidden");
     }
 }
 
 function closeLetterModal() {
     const modal = document.getElementById("letter-modal");
-    modal.classList.remove("active");
+    if (modal) modal.classList.remove("active");
+    syncBodyModalLock();
 }
 
 function startFullLetterTyping() {
@@ -591,10 +779,24 @@ function startFullLetterTyping() {
         const char = FULL_LOVE_LETTER.charAt(letterTypingIndex);
         targetElement.innerHTML += char;
         letterTypingIndex++;
-        setTimeout(startFullLetterTyping, 30);
+        letterTypingTimeout = setTimeout(startFullLetterTyping, 24);
     } else {
         isLetterTyped = true;
+        const skipBtn = document.getElementById("letter-skip-btn");
+        if (skipBtn) skipBtn.classList.add("hidden");
     }
+}
+
+function skipLetterTyping() {
+    if (isLetterTyped) return;
+    if (letterTypingTimeout) clearTimeout(letterTypingTimeout);
+    const targetElement = document.getElementById("full-typing-text");
+    if (targetElement) {
+        targetElement.innerHTML = FULL_LOVE_LETTER;
+    }
+    isLetterTyped = true;
+    const skipBtn = document.getElementById("letter-skip-btn");
+    if (skipBtn) skipBtn.classList.add("hidden");
 }
 
 
@@ -621,12 +823,10 @@ function handleLoveClick(event) {
         }
     }
 
-    // Getaran halus di HP Android tiap kali ditekan
     if (navigator.vibrate) {
         navigator.vibrate(20);
     }
 
-    // Munculkan hati kecil terbang di posisi sentuhan
     spawnFloatingHeart(event);
 }
 
@@ -648,14 +848,13 @@ function spawnFloatingHeart(event) {
     heart.style.setProperty("--drift-x", randomDrift);
 
     document.body.appendChild(heart);
-    setTimeout(() => heart.remove(), 900);
+    setTimeout(() => heart.remove(), 950);
 }
+
 
 // ==========================================================================
 // 8. KONTROL PLAYLIST MUSIK (BISA GANTI-GANTI LAGU)
 // ==========================================================================
-
-// Daftar lagu (Silakan tambah/ubah judul, penyanyi, dan lokasi file MP3-nya)
 const musicPlaylist = [
     {
         title: "Awal Kisah Selamanya",
@@ -690,10 +889,8 @@ function initMusicPlayer() {
     const audio = document.getElementById("bg-music");
     if (!audio || musicPlaylist.length === 0) return;
 
-    // Muat lagu pertama tanpa memutarnya sebelum tombol kamera ditekan
     loadTrack(currentTrackIndex, false);
 
-    // Otomatis lanjut ke lagu berikutnya saat satu lagu selesai
     audio.addEventListener("ended", () => {
         nextTrack();
     });
@@ -782,9 +979,7 @@ function expandMusicPlayer() {
         dock.classList.remove("minimized");
     }
 }
-// ==========================================================================
-// NAVIGASI DAFTAR LAGU (PLAYLIST DRAWER)
-// ==========================================================================
+
 function renderPlaylistDrawer() {
     const container = document.getElementById("playlist-items-container");
     const audio = document.getElementById("bg-music");
@@ -834,14 +1029,25 @@ function selectTrack(index) {
     loadTrack(index, true);
 }
 
-document.addEventListener("DOMContentLoaded", initMusicPlayer);
-// ==========================================================================
-// 9. GUDANG KENANGAN BERDUA (MULTI-FOTO PER LOKASI + LAZY LOAD ANDROID)
-// ==========================================================================
+// Tutup laci playlist otomatis saat mengetuk area luar
+document.addEventListener("click", (e) => {
+    const drawer = document.getElementById("playlist-drawer");
+    const dock = document.getElementById("music-player-dock");
+    if (drawer && drawer.classList.contains("open")) {
+        if (!drawer.contains(e.target) && dock && !dock.contains(e.target)) {
+            closePlaylistDrawer();
+        }
+    }
+});
 
+document.addEventListener("DOMContentLoaded", initMusicPlayer);
+
+
+// ==========================================================================
+// 9. GUDANG KENANGAN BERDUA (MULTI-FOTO PER LOKASI + WINDOWED LAZY LOAD)
+// ==========================================================================
 const warehousePhotos = [
     {
-        // Banyak foto dalam 1 lokasi tinggal dimasukkan ke dalam array 'images'
         images: [
             "assets/images/motoran/motoran1.1.jpg",
             "assets/images/motoran/motoran1.2.jpg",
@@ -850,7 +1056,7 @@ const warehousePhotos = [
             "assets/images/motoran/motoran1.5.jpg",
             "assets/images/motoran/motoran1.6.jpg",
         ],
-        fallback: "",
+        fallback: "https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=600",
         category: "motor",
         categoryLabel: "Naik Motor 🛵",
         date: "Edisi Motoran",
@@ -872,7 +1078,7 @@ const warehousePhotos = [
             "35% center",
             ""
         ],
-       
+        fallback: "https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=600",
         category: "makan",
         categoryLabel: "Makan-makan 🍜",
         date: "Kuliner Berdua",
@@ -904,7 +1110,7 @@ const warehousePhotos = [
             "assets/images/random/fotorandom1.4.jpg",
             "assets/images/random/fotorandom1.5.jpg",
         ],
-        fallback: "",
+        fallback: "https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=600",
         category: "random",
         categoryLabel: "Random 💫",
         date: "Momen Lucu",
@@ -920,7 +1126,7 @@ const warehousePhotos = [
             "assets/images/fotbar/fotbar2.3.jpg",
             "assets/images/fotbar/fotbar2.4.jpg",
         ],
-        fallback: "",
+        fallback: "https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=600",
         category: "fotbar",
         categoryLabel: "Fotbar 😍",
         date: "Fotbar ultah",
@@ -935,24 +1141,19 @@ const warehousePhotos = [
             "assets/images/fotbar/fotbar3.1.jpg",
             "assets/images/fotbar/fotbar3.2.jpg",
             "assets/images/fotbar/fotbar3.3.jpg",
-            
         ],
-        // Urutannya mengikuti urutan 'images' di atas (kosongkan "" jika sudah pas)
         crops: [
             "center 100%",
             "center 100%",
             "center 100%",
             "center 100%",
-            "center 100%",
-            "center 100%",
-            
         ],
-        fallback: "",
+        fallback: "https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=600",
         category: "fotbar",
         categoryLabel: "Fotbar 😍",
         date: "Fotbar pulang upra",
         caption: "Fav photo",
-        note: "Moment dimana aku udah mau pulang, tadinya pengen fotbar dulu sebelum pulang tapi kamunya udah mau pulang, kamu kamu balik lagi dan jadi deh.",
+        note: "Moment dimana aku udah mau pulang, tadinya pengen fotbar dulu sebelum pulang tapi kamunya udah mau pulang, terus kamu balik lagi dan jadi deh.",
         sticker: "❤️",
         pinStyle: "tape-gold"
     },
@@ -972,12 +1173,10 @@ const warehousePhotos = [
             "assets/images/fotbar/fotbar4.12.jpg",
             "assets/images/fotbar/fotbar4.13.jpg",
         ],
-        // Urutannya mengikuti urutan 'images' di atas (kosongkan "" jika sudah pas)
         crops: [
             "center 40%",
-            
         ],
-        fallback: "",
+        fallback: "https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=600",
         category: "fotbar",
         categoryLabel: "Fotbar 😍",
         date: "Bukit Tingalien",
@@ -997,32 +1196,29 @@ const warehousePhotos = [
             "assets/images/fotbar/fotbar5.7.jpg",
             "assets/images/fotbar/fotbar5.8.jpg",
         ],
-        // Urutannya mengikuti urutan 'images' di atas (kosongkan "" jika sudah pas)
-        crops: [
-            
-        ],
-        fallback: "",
+        crops: [],
+        fallback: "https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=600",
         category: "fotbar",
         categoryLabel: "Fotbar 😍",
         date: "Lari Ke Bungamelur",
         caption: "Running date ceritanya",
-        note: "Moment pas kita lagi upra PJOK, kita lari ke bungamelur, dan aku sengala larinya di lambatin biar deket kamu terus, terus kejebak ujan, tapi moment paling seru deh😉",
+        note: "Moment pas kita lagi upra PJOK, kita lari ke bungamelur, dan aku sengaja larinya di lambatin biar deket kamu terus, terus kejebak ujan, tapi moment paling seru deh😉",
         sticker: "❤️",
         pinStyle: "tape-pink"
     },
     {
         images: [
             "assets/images/random/random2.1.jpg",
-"assets/images/random/random2.2.jpg",
-"assets/images/random/random2.3.jpg",
-"assets/images/random/random2.4.jpg",
-"assets/images/random/random2.5.jpg",
+            "assets/images/random/random2.2.jpg",
+            "assets/images/random/random2.3.jpg",
+            "assets/images/random/random2.4.jpg",
+            "assets/images/random/random2.5.jpg",
         ],
-        fallback: "",
+        fallback: "https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=600",
         category: "random",
         categoryLabel: "Random 💫",
         date: "Momen Lucu",
-        caption: "foto asal jepret",
+        caption: "Foto asal jepret",
         note: "Di fotoin bi yayang tapi bi yayangnya asal jepret jadi gini deh🤣",
         sticker: "😭",
         pinStyle: "pin-red"
@@ -1043,7 +1239,6 @@ const warehousePhotos = [
             "assets/images/makan/makan2.8.jpg",
             "assets/images/makan/makan2.9.jpg",
         ],
-        // Urutannya mengikuti urutan 'images' di atas (kosongkan "" jika sudah pas)
         crops: [
             "60% center",
             "",
@@ -1057,12 +1252,12 @@ const warehousePhotos = [
             "60% center",
             "60% center",
         ],
-        fallback: "",
+        fallback: "https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=600",
         category: "makan",
-        categoryLabel: "Makan baso",
+        categoryLabel: "Makan baso 🍜",
         date: "Bakso date again",
         caption: "Bakso date",
-        note: "Moment pas aku jemput kamu pulang dari cirebon, terus kita makan baso dulu, terus malah ke ujanan, jadinya ga sampe rumah abah, terus kamu nginep karna udah sore, moment terseru sih, ujan ujanan di motor sama kamu. ",
+        note: "Moment pas aku jemput kamu pulang dari cirebon, terus kita makan baso dulu, terus malah ke ujanan, jadinya ga sampe rumah abah, terus kamu nginep karna udah sore, moment terseru sih, ujan ujanan di motor sama kamu.",
         sticker: "❤️",
         pinStyle: "tape-pink"
     },
@@ -1076,16 +1271,13 @@ const warehousePhotos = [
             "assets/images/fotbar/fotbar6.8.jpg",
             "assets/images/fotbar/fotbar6.9.jpg",
         ],
-        // Urutannya mengikuti urutan 'images' di atas (kosongkan "" jika sudah pas)
-        crops: [
-            
-        ],
-        fallback: "",
+        crops: [],
+        fallback: "https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=600",
         category: "fotbar",
         categoryLabel: "Fotbar 😍",
         date: "Outdoor date",
         caption: "Outdoor date",
-        note: "moment pas kita camp di sukanagara, kemaren nya aku ngajakin kamu foto tapi kamu gamau, jadi aku marah, terus pas paginya jadi foto yey, meski kita masih ada muka bantalnya tapi tetep cakep xixixi.",
+        note: "Moment pas kita camp di sukanagara, kemaren nya aku ngajakin kamu foto tapi kamu gamau, jadi aku marah, terus pas paginya jadi foto yey, meski kita masih ada muka bantalnya tapi tetep cakep xixixi.",
         sticker: "❤️",
         pinStyle: "tape-pink"
     },
@@ -1097,11 +1289,8 @@ const warehousePhotos = [
             "assets/images/fotbar/fotbar7.4.jpg",
             "assets/images/fotbar/fotbar7.5.jpg",
         ],
-        // Urutannya mengikuti urutan 'images' di atas (kosongkan "" jika sudah pas)
-        crops: [
-            
-        ],
-        fallback: "",
+        crops: [],
+        fallback: "https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=600",
         category: "fotbar",
         categoryLabel: "Fotbar 😍",
         date: "Outdoor date",
@@ -1126,12 +1315,12 @@ const warehousePhotos = [
             "assets/images/random/random3.8.jpg",
             "assets/images/random/random3.9.jpg",
         ],
-        fallback: "",
+        fallback: "https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=600",
         category: "random",
         categoryLabel: "Random 💫",
         date: "Momen lucu",
         caption: "Asal Jepret",
-        note: "Ini di fotoin tapi ga bener, dan di liat liat emang kebanyakan foto yang ga benernya🤣 tapi temen cakep di segala kondisi.",
+        note: "Ini di fotoin tapi ga bener, dan di liat liat emang kebanyakan foto yang ga benernya🤣 tapi tetep cakep di segala kondisi.",
         sticker: "😭",
         pinStyle: "pin-red"
     },
@@ -1145,11 +1334,8 @@ const warehousePhotos = [
             "assets/images/fotbar/fotbar8.6.jpg",
             "assets/images/fotbar/fotbar8.7.jpg",
         ],
-        // Urutannya mengikuti urutan 'images' di atas (kosongkan "" jika sudah pas)
-        crops: [
-            
-        ],
-        fallback: "",
+        crops: [],
+        fallback: "https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=600",
         category: "fotbar",
         categoryLabel: "Fotbar 😍",
         date: "Outdoor date",
@@ -1179,11 +1365,8 @@ const warehousePhotos = [
             "assets/images/fotbar/fotbar9.8.jpg",
             "assets/images/fotbar/fotbar9.9.jpg",
         ],
-        // Urutannya mengikuti urutan 'images' di atas (kosongkan "" jika sudah pas)
-        crops: [
-            
-        ],
-        fallback: "",
+        crops: [],
+        fallback: "https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=600",
         category: "fotbar",
         categoryLabel: "Fotbar 😍",
         date: "Graduation",
@@ -1202,8 +1385,25 @@ const warehousePhotos = [
             "assets/images/fotbar/fotbar13.14.jpg",
             "assets/images/fotbar/fotbar13.15.jpg",
             "assets/images/fotbar/fotbar13.16.jpg",
+            "assets/images/fotbar/fotbar13.17.jpg",
+            "assets/images/fotbar/fotbar13.18.jpg",
+            "assets/images/fotbar/fotbar13.19.jpg",
             "assets/images/fotbar/fotbar13.2.jpg",
+            "assets/images/fotbar/fotbar13.20.jpg",
+            "assets/images/fotbar/fotbar13.21.jpg",
+            "assets/images/fotbar/fotbar13.22.jpg",
+            "assets/images/fotbar/fotbar13.23.jpg",
+            "assets/images/fotbar/fotbar13.24.jpg",
+            "assets/images/fotbar/fotbar13.25.jpg",
+            "assets/images/fotbar/fotbar13.26.jpg",
+            "assets/images/fotbar/fotbar13.27.jpg",
+            "assets/images/fotbar/fotbar13.28.jpg",
+            "assets/images/fotbar/fotbar13.29.jpg",
             "assets/images/fotbar/fotbar13.3.jpg",
+            "assets/images/fotbar/fotbar13.30.jpg",
+            "assets/images/fotbar/fotbar13.31.jpg",
+            "assets/images/fotbar/fotbar13.32.jpg",
+            "assets/images/fotbar/fotbar13.33.jpg",
             "assets/images/fotbar/fotbar13.4.jpg",
             "assets/images/fotbar/fotbar13.5.jpg",
             "assets/images/fotbar/fotbar13.6.jpg",
@@ -1211,7 +1411,6 @@ const warehousePhotos = [
             "assets/images/fotbar/fotbar13.8.jpg",
             "assets/images/fotbar/fotbar13.9.jpg",
         ],
-        // Urutannya mengikuti urutan 'images' di atas (kosongkan "" jika sudah pas)
         crops: [
             "center 90%",
             "center 90%",
@@ -1229,14 +1428,13 @@ const warehousePhotos = [
             "center 90%",
             "center 90%",
             "center 90%",
-            "center 90%",
         ],
-        fallback: "",
+        fallback: "https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=600",
         category: "fotbar",
         categoryLabel: "Fotbar 😍",
-        date: "Selabinta date",
-        caption: "Moment date ke sukabumi",
-        note: "moment pas kita main ke wisata alam, soalnya kita pengen cari tempat yang sejuk sejuk, biar seger, terus pulangnya kali pertamanya kamu kerumah aku dulu ketemu mama papa dan kaka aku.",
+        date: "Cakrawala date",
+        caption: "Moment date ke cakrawala",
+        note: "Moment pas kita main ke wisata alam cakrawala, soalnya kita pengen cari tempat yang sejuk sejuk, biar seger, terus pulangnya kali pertamanya kamu kerumah aku dulu ketemu mama papa dan kaka aku. maaf ya banyak soalnya aku masukin semua nya hihihiii.",
         sticker: "❤️",
         pinStyle: "tape-gold"
     },
@@ -1248,11 +1446,8 @@ const warehousePhotos = [
             "assets/images/fotbar/fotbar10.4.jpg",
             "assets/images/fotbar/fotbar10.5.jpg",
         ],
-        // Urutannya mengikuti urutan 'images' di atas (kosongkan "" jika sudah pas)
-        crops: [
-            
-        ],
-        fallback: "",
+        crops: [],
+        fallback: "https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=600",
         category: "fotbar",
         categoryLabel: "Fotbar 😍",
         date: "Pasawahan date",
@@ -1274,7 +1469,6 @@ const warehousePhotos = [
             "assets/images/fotbar/fotbar11.3.jpg",
             "assets/images/fotbar/fotbar11.4.jpg",
         ],
-        // Urutannya mengikuti urutan 'images' di atas (kosongkan "" jika sudah pas)
         crops: [
             "60% center",
             "60% center",
@@ -1285,12 +1479,12 @@ const warehousePhotos = [
             "60% center",
             "55% center",
         ],
-        fallback: "",
+        fallback: "https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=600",
         category: "fotbar",
         categoryLabel: "Fotbar 😍",
-        date: "Foto both date",
-        caption: "First foto booth",
-        note: "Moment paling seru, sebelumnya kita debat dulu buat nentuin tempatnya, jadi kangen, nanti kita foto both lagi oke.",
+        date: "Photo booth date",
+        caption: "First photo booth",
+        note: "Moment paling seru, sebelumnya kita debat dulu buat nentuin tempatnya, jadi kangen, nanti kita photo booth lagi oke.",
         sticker: "❤️",
         pinStyle: "tape-pink"
     },
@@ -1299,16 +1493,13 @@ const warehousePhotos = [
             "assets/images/fotbar/fotbar12.1.jpg",
             "assets/images/fotbar/fotbar12.2.jpg",
         ],
-        // Urutannya mengikuti urutan 'images' di atas (kosongkan "" jika sudah pas)
-        crops: [
-            
-        ],
-        fallback: "",
+        crops: [],
+        fallback: "https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=600",
         category: "fotbar",
         categoryLabel: "Fotbar 😍",
         date: "Nganterin Pulang",
         caption: "Moment terakhir kita ketemu sebelum aku kuliah",
-        note: "pas moment ini rasanya sedih deh, aku udah mulai ada kegiatan, dan takut kamu nya mikir aku gada waktu lagi buat kamu, tapi ternyata ngga seperti itu, kita masih tetep bisa punya ruang, makasi ya sayang udah ngerti, love you more sayang💕",
+        note: "Pas moment ini rasanya sedih deh, aku udah mulai ada kegiatan, dan takut kamu nya mikir aku gada waktu lagi buat kamu, tapi ternyata ngga seperti itu, kita masih tetep bisa punya ruang, makasi ya sayang udah ngerti, love you more sayang💕",
         sticker: "❤️",
         pinStyle: "tape-pink"
     },
@@ -1318,13 +1509,13 @@ let currentFilteredWarehouse = [...warehousePhotos];
 let currentZoomIndex = 0;
 let currentSubPhotoIndex = 0;
 
-// Helper agar kompatibel baik memakai 'images: [...]' maupun 'image: "..."'
 function getMomentPhotos(item) {
     if (Array.isArray(item.images) && item.images.length > 0) {
         return item.images;
     }
     return item.image ? [item.image] : [item.fallback];
 }
+
 function getPhotoCrop(item, photoIndex) {
     if (Array.isArray(item.crops) && item.crops[photoIndex]) {
         return item.crops[photoIndex];
@@ -1332,22 +1523,24 @@ function getPhotoCrop(item, photoIndex) {
     if (item.crop) {
         return item.crop;
     }
-    return "center 25%"; // Otomatis jika tidak diatur manual
+    return "center 25%";
 }
 
 function openWarehouseModal() {
     closeStoryModal();
     const modal = document.getElementById("warehouse-modal");
     modal.classList.add("active");
+    syncBodyModalLock();
 
     const firstPill = document.querySelector("#warehouse-filter-bar .filter-pill");
     filterWarehouse("all", firstPill);
-    launchInaugurationFireworks();
+    //launchInaugurationFireworks();
 }
 
 function closeWarehouseModal() {
     const modal = document.getElementById("warehouse-modal");
     modal.classList.remove("active");
+    syncBodyModalLock();
 }
 
 function filterWarehouse(category, btnElement) {
@@ -1362,6 +1555,9 @@ function filterWarehouse(category, btnElement) {
         currentFilteredWarehouse = warehousePhotos.filter(item => item.category === category);
     }
 
+    const scrollArea = document.getElementById("warehouse-scroll-area");
+    if (scrollArea) scrollArea.scrollTop = 0;
+
     renderWarehouseWall();
 }
 
@@ -1369,23 +1565,21 @@ function renderWarehouseWall() {
     const grid = document.getElementById("warehouse-grid");
     const countInfo = document.getElementById("warehouse-count-info");
 
-    // Hitung total keseluruhan foto dari semua kelompok yang tampil
     const totalMoments = currentFilteredWarehouse.length;
     const totalAllPhotos = currentFilteredWarehouse.reduce((sum, item) => sum + getMomentPhotos(item).length, 0);
 
     countInfo.innerText = `${totalMoments} lokasi/momen (${totalAllPhotos} foto berdua)`;
     grid.innerHTML = "";
 
-    const tilts = ["-2.2deg", "1.8deg", "-1.5deg", "2.3deg", "-1.8deg", "1.4deg"];
+    const tilts = ["-2deg", "1.6deg", "-1.4deg", "2deg", "-1.6deg", "1.3deg"];
+    const fragment = document.createDocumentFragment();
 
     currentFilteredWarehouse.forEach((item, idx) => {
         const photos = getMomentPhotos(item);
         const coverPhoto = photos[0];
         const coverCrop = getPhotoCrop(item, 0);
         const hasMultiple = photos.length > 1;
-
         const tilt = tilts[idx % tilts.length];
-        const delay = `${Math.min(idx * 0.06, 0.5)}s`;
 
         let pinHtml = `<div class="mini-washi-tape gold"></div>`;
         if (item.pinStyle === "tape-pink") pinHtml = `<div class="mini-washi-tape pink"></div>`;
@@ -1398,22 +1592,25 @@ function renderWarehouseWall() {
         const card = document.createElement("div");
         card.className = `scrapbook-polaroid ${hasMultiple ? "is-stack" : ""}`;
         card.style.setProperty("--card-tilt", tilt);
-        card.style.setProperty("--card-delay", delay);
         card.onclick = () => openWarehouseZoom(idx);
 
-        // Gunakan loading="lazy" & decoding="async" agar hemat RAM/baterai di Android
+        // 4 kartu pertama langsung eager agar instan muncul, sisanya lazy + async decode
+        const loadingAttr = idx < 4 ? 'loading="eager"' : 'loading="lazy"';
+
         card.innerHTML = `
             ${pinHtml}
             ${stackBadgeHtml}
             <div class="scrapbook-img-wrap">
-                <img src="${coverPhoto}" style="object-position: ${coverCrop};" alt="${item.caption}" class="scrapbook-img" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='${item.fallback}'">
+                <img src="${coverPhoto}" style="object-position: ${coverCrop};" alt="${item.caption}" class="scrapbook-img" ${loadingAttr} decoding="async" onload="this.classList.add('loaded')" onerror="this.onerror=null; this.src='${item.fallback}'; this.classList.add('loaded')">
             </div>
             <span class="polaroid-corner-sticker">${item.sticker || "❤️"}</span>
             <p class="scrapbook-caption">${item.caption}</p>
         `;
 
-        grid.appendChild(card);
+        fragment.appendChild(card);
     });
+
+    grid.appendChild(fragment);
 }
 
 function pickRandomWarehouseMemory() {
@@ -1429,12 +1626,14 @@ function openWarehouseZoom(idx) {
     currentSubPhotoIndex = 0;
     const modal = document.getElementById("warehouse-zoom-modal");
     modal.classList.add("active");
+    syncBodyModalLock();
     updateZoomContent();
 }
 
 function closeWarehouseZoom() {
     const modal = document.getElementById("warehouse-zoom-modal");
     modal.classList.remove("active");
+    syncBodyModalLock();
 }
 
 function closeWarehouseZoomOnBackdrop(event) {
@@ -1443,11 +1642,21 @@ function closeWarehouseZoomOnBackdrop(event) {
     }
 }
 
+// Hanya memuat foto aktif & 1 tetangga kiri/kanan agar HP tidak lag mendekode belasan foto sekaligus
+function hydrateZoomNearbySlides(activeIdx) {
+    const slides = document.querySelectorAll("#zoom-photo-track .zoom-photo-img");
+    slides.forEach((img, idx) => {
+        if (Math.abs(idx - activeIdx) <= 1 && !img.getAttribute("src")) {
+            const realSrc = img.getAttribute("data-src");
+            if (realSrc) img.setAttribute("src", realSrc);
+        }
+    });
+}
+
 function updateZoomContent() {
     const item = currentFilteredWarehouse[currentZoomIndex];
     if (!item) return;
 
-    // Sesuaikan hiasan atas (jarum pentul merah / selotip) dengan kartu yang diklik
     const pinEl = document.getElementById("zoom-pin-ornament");
     if (pinEl) {
         if (item.pinStyle === "pin-red") {
@@ -1464,24 +1673,22 @@ function updateZoomContent() {
 
     const card = document.getElementById("zoom-polaroid-card");
     card.style.animation = "none";
-    card.offsetHeight;
-    card.style.animation = "zoomBounceIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275)";
+    void card.offsetHeight;
+    card.style.animation = "zoomBounceIn 0.28s cubic-bezier(0.22, 1, 0.36, 1)";
 
-    // Cetak seluruh foto dalam 1 lokasi ke dalam jalur slide
     const track = document.getElementById("zoom-photo-track");
     track.style.transform = "translateX(0%)";
     track.innerHTML = photos.map((photoSrc, pIdx) => {
         const slideCrop = getPhotoCrop(item, pIdx);
-        // Prioritaskan 2 foto pertama, sisanya diunduh menyusul agar tidak rebutan bandwidth
-        const loadStrategy = pIdx > 1 ? 'loading="lazy"' : 'fetchpriority="high"';
+        const shouldLoadNow = pIdx <= 1;
+        const srcAttr = shouldLoadNow ? `src="${photoSrc}"` : `data-src="${photoSrc}"`;
         return `
             <div class="zoom-slide">
-                <img src="${photoSrc}" style="object-position: ${slideCrop};" alt="${item.caption} (${pIdx + 1})" class="zoom-photo-img" ${loadStrategy} decoding="async" onerror="this.onerror=null; this.src='${item.fallback}'">
+                <img ${srcAttr} style="object-position: ${slideCrop};" alt="${item.caption} (${pIdx + 1})" class="zoom-photo-img" decoding="async" onerror="this.onerror=null; this.src='${item.fallback}'">
             </div>
         `;
     }).join("");
 
-    // Tampilkan navigasi sub-foto hanya jika lokasi ini punya lebih dari 1 foto
     const hasMultiple = photos.length > 1;
     const prevBtn = document.getElementById("zoom-sub-prev");
     const nextBtn = document.getElementById("zoom-sub-next");
@@ -1507,7 +1714,6 @@ function updateZoomContent() {
     document.getElementById("zoom-story-note").innerText = item.note;
 }
 
-// Geser foto di dalam 1 lokasi yang sama
 function slideZoomPhoto(direction) {
     const item = currentFilteredWarehouse[currentZoomIndex];
     if (!item) return;
@@ -1529,6 +1735,8 @@ function goToZoomSubPhoto(subIdx) {
 }
 
 function applyZoomSubSlide(totalSubPhotos) {
+    hydrateZoomNearbySlides(currentSubPhotoIndex);
+
     const track = document.getElementById("zoom-photo-track");
     const counterEl = document.getElementById("zoom-photo-counter");
     const dots = document.querySelectorAll("#zoom-photo-dots .zoom-dot");
@@ -1544,7 +1752,6 @@ function applyZoomSubSlide(totalSubPhotos) {
     });
 }
 
-// Pindah ke lokasi/momen sebelumnya atau berikutnya (tombol bawah)
 function navigateZoom(direction) {
     const total = currentFilteredWarehouse.length;
     currentZoomIndex = (currentZoomIndex + direction + total) % total;
@@ -1553,14 +1760,14 @@ function navigateZoom(direction) {
 
 function likeZoomedPhoto() {
     sendStoryReaction("❤️");
-    if (typeof confetti === "function") {
-        confetti({
-            particleCount: 25,
-            spread: 60,
-            origin: { y: 0.75 },
-            colors: ["#E2738E", "#EBCB8B", "#FFFFFF"]
-        });
-    }
+    //if (typeof confetti === "function") {
+        //confetti({
+          //  particleCount: 25,
+           // spread: 60,
+           // origin: { y: 0.75 },
+            //colors: ['#9E3F35', '#C49A45', '#8C5835', '#FAF6EE']
+        //});
+    //}
 }
 
 // Dukungan Swipe Jari Horizontal pada Foto Zoom di Android
@@ -1579,14 +1786,29 @@ document.addEventListener("DOMContentLoaded", () => {
             const diffX = e.changedTouches[0].screenX - zoomSwipeStartX;
             const diffY = e.changedTouches[0].screenY - zoomSwipeStartY;
 
-            // Pastikan gerakan jari dominan horizontal (bukan scroll vertikal)
             if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 35) {
                 if (diffX < 0) {
-                    slideZoomPhoto(1); // Geser ke foto berikutnya dalam lokasi yang sama
+                    slideZoomPhoto(1);
                 } else {
-                    slideZoomPhoto(-1); // Geser ke foto sebelumnya dalam lokasi yang sama
+                    slideZoomPhoto(-1);
                 }
             }
         }, { passive: true });
+    }
+});
+
+// Tutup modal teratas saat tombol Escape ditekan
+document.addEventListener("keydown", (e) => {
+    if (e.key !== "Escape") return;
+    if (document.getElementById("warehouse-zoom-modal")?.classList.contains("active")) {
+        closeWarehouseZoom();
+    } else if (document.getElementById("warehouse-modal")?.classList.contains("active")) {
+        closeWarehouseModal();
+    } else if (document.getElementById("story-modal")?.classList.contains("active")) {
+        closeStoryModal();
+    } else if (document.getElementById("letter-modal")?.classList.contains("active")) {
+        closeLetterModal();
+    } else if (document.getElementById("inauguration-modal")?.classList.contains("active")) {
+        closeInaugurationModal();
     }
 });
